@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signature</title>
+    <link rel="stylesheet" href="index.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container">
+        <div class="top">
+            <div class="black">
+                <p>Text Color Picker</p>
+                <input class="form-control" type="color" name="" id="colorPicker">
+            </div>
+            <div class="black">
+                <p>Baackground</p>
+                <input type="color" class="form-control" id="canvasColour">
+            </div>
+            <div class="black">
+                <p>Font Sizer</p>
+                <select name="" id="fontSize">
+                    <option value="5">5px</option>
+                    <option value="10">10px</option>
+                    <option value="20">20px</option>
+                    <option value="30">30px</option>
+                    <option value="40">40px</option>
+                    <option value="50">50px</option>
+                </select>
+            </div>
+        </div>
+        
+        <canvas class="canvas" id="myCanvas" width="800" height="500"></canvas>
+        <div class="button">
+            <div class="container">
+
+                <button type="button" class="btn btn-danger" id="clearButton">
+                    Clear
+                </button>
+                <button type="button" class="btn btn-success" id="Save & download">
+                    Save and Download
+                </button>
+                <button type="button" class="btn btn-warning" id="Retrive">
+                    Retrive Saved Signature
+                </button>
+            </div>
+        </div>   
+    </div>
+    <script>
+        // Get references to canvas, context, color picker, and font size
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+        const colorPicker = document.getElementById('colorPicker');
+        const fontSize = document.getElementById('fontSize');
+        const clearButton = document.getElementById('clearButton');
+        const saveButton = document.getElementById('Save & download');
+        const retrieveInput = document.getElementById('Retrive');
+        const canvasColour = document.getElementById('canvasColour');
+
+        // Set initial brush color and line width
+        let brushColor = colorPicker.value;
+        let lineWidth = fontSize.value;
+
+        // Update the brush color when the color picker changes
+        colorPicker.addEventListener('input', function() {
+            brushColor = this.value;
+        });
+
+        // Update the line width when the range slider changes
+        fontSize.addEventListener('input', function() {
+            lineWidth = this.value;
+        });
+            // Update the canvas background color when the background color picker changes
+            canvasColour.addEventListener('input', function() {
+            bgColor = this.value;
+            updateCanvasBackground();
+        });
+
+        function updateCanvasBackground() {
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        let isDrawing = false;
+
+        // Start drawing
+        canvas.addEventListener('mousedown', function(e) {
+            isDrawing = true;
+            draw(e);
+        });
+
+        // Stop drawing
+        canvas.addEventListener('mouseup', function() {
+            isDrawing = false;
+            ctx.beginPath(); // Begin a new path when the mouse is released
+        });
+
+        // Draw when the mouse is moved
+        canvas.addEventListener('mousemove', draw);
+
+        function draw(e) {
+            if (!isDrawing) return; // Exit if not drawing
+
+            ctx.lineWidth = lineWidth;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = brushColor;
+
+            ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+        }
+        //clear button canvas whrn clear button is clicked.
+        clearButton.addEventListener('click', function() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clears the entire canvas
+        }); 
+        // Download the canvas content as an image when the Save button is clicked
+        saveButton.addEventListener('click', function() {
+            // Create a link element
+            const link = document.createElement('a');
+            // Set the download attribute with a file name
+            link.download = 'signature.png';
+            // Convert the canvas content to a data URL (PNG image)
+            link.href = canvas.toDataURL('image/png');
+            // Simulate a click to download the image
+            link.click();
+        });
+                // Load and display the selected image file on the canvas
+            retrieveInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before drawing the new image
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw the image to fit the canvas
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        // Initialize the canvas with the default background color
+        updateCanvasBackground();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</body>
+</html>
